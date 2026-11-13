@@ -20,7 +20,8 @@ curl -I https://jamgvct.co/assets/icon-512.png
 /assets/icon-512.png
   Content-Type: image/png
 
-
+@noCache path /service-worker.js /manifest.webmanifest
+header @noCache Cache-Control "no-cache"
  https://github.com/wwwjexuxgomez13-cpu/jamg-vct-os.git
 
 cd jamg-vct-os
