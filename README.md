@@ -199,3 +199,5 @@ do
 done
 sudo ls -ld /var/log/caddy
 sudo systemctl show caddy -p User -p Group
+
+{"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"jamgvct.co.","type":1}],"Authority":[{"name":"co.","type":6,"TTL":201,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802481 900 1800 6048000 3600"}]}
