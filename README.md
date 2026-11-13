@@ -10,6 +10,179 @@ Entorno de demostración técnica. Barranquilla, Colombia.
 
 **Sitio DEMO:** https://jamgvct.co
 
+typescript
+import { createPublicKey, verify, KeyObject } from 'node:crypto';
+
+export interface AuthorizedOperator {
+  operatorId: string;
+  role: 'COMPLIANCE_OFFICER' | 'SYSTEM_AUDITOR';
+  publicKeyHex: string; // Llave pública Ed25519 cruda de 32 bytes (64 caracteres hex)
+  active: boolean;
+}
+
+// Prefijo ASN.1 DER estándar para envolver una llave pública Ed25519 cruda de 32 bytes
+const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
+
+function hexToEd25519PublicKey(publicKeyHex: string): KeyObject {
+  if (!/^[a-f0-9]{64}$/i.test(publicKeyHex)) {
+    throw new Error('ERR_INVALID_PUBLIC_KEY: La llave pública Ed25519 debe tener 32 bytes (64 caracteres hex).');
+  }
+  const rawKey = Buffer.from(publicKeyHex, 'hex');
+  const spkiDer = Buffer.concat([ED25519_SPKI_PREFIX, rawKey]);
+  return createPublicKey({ key: spkiDer, format: 'der', type: 'spki' });
+}
+
+export function verifyOperatorEd25519Signature(params: {
+  operator: AuthorizedOperator;
+  operationId: string;
+  invoiceNumber: string;
+  accountingSupportHash: string;
+  nominalAmountUsd: number;
+  approvedAtIso: string;
+  signatureHex: string;
+}): boolean {
+  if (!params.operator.active) {
+    throw new Error('ERR_OPERATOR_INACTIVE: El operador no se encuentra habilitado para firmar aprobaciones.');
+  }
+
+  if (!/^[a-f0-9]{128}$/i.test(params.signatureHex)) {
+    return false;
+  }
+
+  // Mensaje canónico determinista que el operador debe firmar en su cliente
+  const canonicalMessage = [
+    'JAMG-VCT-RFC-002',
+    params.operationId,
+    params.invoiceNumber,
+    params.accountingSupportHash,
+    params.nominalAmountUsd.toFixed(6),
+    params.approvedAtIso,
+  ].join('|');
+
+  const publicKey = hexToEd25519PublicKey(params.operator.publicKeyHex);
+  const signatureBuffer = Buffer.from(params.signatureHex, 'hex');
+  const messageBuffer = Buffer.from(canonicalMessage, 'utf8');
+
+  return verify(null, messageBuffer, publicKey, signatureBuffer);
+
+import { Request, Response } from 'express';
+import {
+  RFC002ComplianceEngine,
+  B2BComplianceInput,
+} from '../../core/rfc002-compliance-engine';
+import {
+  AuthorizedOperator,
+  verifyOperatorEd25519Signature,
+} from '../../security/ed25519-verifier';
+
+// Registro de operadores autorizados (cargar desde PostgreSQL / variables de entorno seguras en producción)
+const OPERATOR_REGISTRY: Record<string, AuthorizedOperator> = {
+  'op-barranquilla-01': {
+    operatorId: 'op-barranquilla-01',
+    role: 'COMPLIANCE_OFFICER',
+    publicKeyHex: process.env.OPERATOR_BQ_01_ED25519_PUBKEY || '',
+    active: true,
+  },
+};
+
+export async function handleB2BAuditRequest(req: Request, res: Response): Promise<void> {
+  try {
+    const payload = req.body as B2BComplianceInput;
+
+    if (!payload || typeof payload !== 'object') {
+      res.status(400).json({
+        error: 'ERR_INVALID_BODY',
+        message: 'El cuerpo de la petición debe ser un objeto JSON válido.',
+      });
+      return;
+    }
+
+    // 1. Bloqueo explícito si se intenta enviar cualquier modo distinto a auditoría
+    if (payload.settlementMode !== 'LOCKED_AUDIT_ONLY') {
+      res.status(403).json({
+        error: 'ERR_SETTLEMENT_DISABLED',
+        message: 'GMS CORE mantiene bloqueada toda liquidación. Use settlementMode: "LOCKED_AUDIT_ONLY".',
+      });
+      return;
+    }
+
+    // 2. Verificar existencia del operador humano autorizado
+    const operatorId = payload.humanApproval?.operatorId;
+    const operator = operatorId ? OPERATOR_REGISTRY[operatorId] : undefined;
+
+    if (!operator || !operator.publicKeyHex) {
+      res.status(401).json({
+        error: 'ERR_UNKNOWN_OPERATOR',
+        message: 'Operador no autorizado o llave pública Ed25519 no configurada.',
+      });
+      return;
+    }
+
+    // 3. Verificación criptográfica real Ed25519 sobre el expediente B2B
+    const isSignatureValid = verifyOperatorEd25519Signature({
+      operator,
+      operationId: payload.operationId,
+      invoiceNumber: payload.b2bDossier?.invoiceNumber || '',
+      accountingSupportHash: payload.b2bDossier?.accountingSupportHash || '',
+      nominalAmountUsd: Number(payload.nominalAmountUsd || 0),
+      approvedAtIso: payload.humanApproval?.approvedAtIso || '',
+      signatureHex: payload.humanApproval?.ed25519Signature || '',
+    });
+
+    if (!isSignatureValid) {
+      res.status(401).json({
+        error: 'ERR_INVALID_ED25519_SIGNATURE',
+        message: 'La firma criptográfica Ed25519 no corresponde al operador o los datos fueron alterados.',
+      });
+      return;
+    }
+
+    // 4. Ejecutar motor de cumplimiento RFC-002 (genera certificado SHA-256 y tarifa SaaS 0.01%)
+    const auditCertificate = RFC002ComplianceEngine.evaluateB2BOperation(payload);
+
+    res.status(200).json({
+      status: 'AUDITED_AND_LOGGED',
+      governance: 'HUMAN_ETHICS_FIRST_VERIFIED',
+      certificate: auditCertificate,
+    });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Error interno de validación';
+    const errorCode = errorMessage.split(':')[0] || 'ERR_AUDIT_FAILED';
+
+    res.status(422).json({
+      error: errorCode,
+      message: errorMessage,
+    });
+  }
+}
+
+import { Router } from 'express';
+import { handleB2BAuditRequest } from '../controllers/rfc002-audit.controller';
+
+const v1Router = Router();
+
+// Endpoint RFC-002: Auditoría B2B con liquidación bloqueada
+v1Router.post('/compliance/b2b/audit', handleB2BAuditRequest);
+
+export default v1Router;
+
+node -e '
+const { generateKeyPairSync, sign } = require("node:crypto");
+const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+const pubHex = publicKey.export({ type: "spki", format: "der" }).subarray(-32).toString("hex");
+const msg = [
+  "JAMG-VCT-RFC-002",
+  "550e8400-e29b-41d4-a716-446655440000",
+  "FAC-2026-0891",
+  "a".repeat(64),
+  (50000).toFixed(6),
+  "2026-11-13T16:30:00.000Z"
+].join("|");
+const sigHex = sign(null, Buffer.from(msg, "utf8"), privateKey).toString("hex");
+console.log("OPERATOR_BQ_01_ED25519_PUBKEY=" + pubHex);
+console.log("ed25519Signature=" + sigHex);
+'
+
 ---
 
 markdown
