@@ -870,3 +870,53 @@ self.addEventListener('fetch', event => {
     .mb-8 { margin-bottom: 8px; }
   </style>
 </head>
+
+
+jamgvct.co {
+    root * /var/www/jamgvct-landing
+
+    handle /manifest.webmanifest {
+        header Content-Type "application/manifest+json"
+        header Cache-Control "public, max-age=3600"
+        file_server
+    }
+
+    handle /service-worker.js {
+        header Cache-Control "no-cache"
+        file_server
+    }
+
+    handle /assets/icon-192.png {
+        header Cache-Control "public, max-age=31536000"
+        file_server
+    }
+
+    handle /assets/icon-512.png {
+        header Cache-Control "public, max-age=31536000"
+        file_server
+    }
+
+    handle {
+        try_files {path} {path}.html {path}/ /index.html
+        file_server
+    }
+}
+sudo caddy validate \
+  --config /etc/caddy/Caddyfile
+
+sudo systemctl reload caddy
+
+sudo systemctl status caddy --no-pager
+
+for path in \
+  / \
+  /manifest.webmanifest \
+  /service-worker.js \
+  /assets/icon-192.png \
+  /assets/icon-512.png
+do
+  echo "===== $path ====="
+  curl -sS -o /dev/null -D - \
+    "https://jamgvct.co$path" |
+    grep -Ei 'HTTP/|content-type:|cache-control:'
+done
