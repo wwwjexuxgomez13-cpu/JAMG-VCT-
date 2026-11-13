@@ -201,3 +201,9 @@ sudo ls -ld /var/log/caddy
 sudo systemctl show caddy -p User -p Group
 
 {"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"jamgvct.co.","type":1}],"Authority":[{"name":"co.","type":6,"TTL":201,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802481 900 1800 6048000 3600"}]}
+
+{"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"jamgvct.co.","type":28}],"Authority":[{"name":"co.","type":6,"TTL":900,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802488 900 1800 6048000 3600"}],"Comment":"Response from 212.18.249.57."}
+
+{"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"jamgvct.co.","type":2}],"Authority":[{"name":"co.","type":6,"TTL":900,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802489 900 1800 6048000 3600"}],"Comment":"Response from 185.24.64.57."}
+
+{"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"www.jamgvct.co.","type":1}],"Authority":[{"name":"co.","type":6,"TTL":900,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802489 900 1800 6048000 3600"}],"Comment":"Response from 2a04:2b00:13ee::57."}
