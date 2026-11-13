@@ -166,3 +166,36 @@ DEMO UI con fines de presentación técnica.
 ¿Quieres que te haga también la versión corta para la descripción del repo en GitHub? Sería esta sola línea, para que no te la marque como financiera:
 
 > `DEMO UI — Prototipo visual sin nodo, sin pagos ni liquidación. Settlement locked.`
+
+<script>
+(() => {
+  // Instalación PWA y registro del Service Worker
+})();
+</script>
+script-src 'self';
+<script src="/assets/app.js" defer></script>
+if (request.mode === 'navigate') {
+  event.respondWith(fetch(request).then((response) => {
+    // Guarda toda navegación exitosa
+  }));
+}
+/assets/og-jamg-vct.jpg
+bash -n deploy-landing.sh
+for path in \
+  / \
+  /manifest.webmanifest \
+  /service-worker.js \
+  /assets/site.css \
+  /assets/icon-192.png \
+  /assets/icon-512.png \
+  /politica-tratamiento-datos.html \
+  /aviso-privacidad.html \
+  /terminos-condiciones.html
+do
+  echo "===== $path ====="
+  curl -sS -o /dev/null \
+    -w "HTTP %{http_code} | %{content_type}\n" \
+    "https://jamgvct.co$path"
+done
+sudo ls -ld /var/log/caddy
+sudo systemctl show caddy -p User -p Group
