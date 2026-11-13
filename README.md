@@ -23,6 +23,21 @@ curl -I https://jamgvct.co/assets/icon-512.png
 @noCache path /service-worker.js /manifest.webmanifest
 header @noCache Cache-Control "no-cache"
  https://github.com/wwwjexuxgomez13-cpu/jamg-vct-os.git
+<meta property="og:site_name" content="JAMG VCT TECH" />
+<meta property="og:locale" content="es_CO" />
+
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt"
+      content="JAMG VCT ℣ — HUMAN ETHICS FIRST" />
+
+<meta name="twitter:site" content="@JAMGVCT" />
+
+file /var/www/jamgvct-landing/assets/og-jamg-vct.jpg
+
+identify /var/www/jamgvct-landing/assets/og-jamg-vct.jpg
+
+curl -sSI https://jamgvct.co/assets/og-jamg-vct.jpg
 
 cd jamg-vct-os
 
