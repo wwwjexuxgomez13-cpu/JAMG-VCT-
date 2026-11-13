@@ -1,4 +1,27 @@
-git clone https://github.com/wwwjexuxgomez13-cpu/jamg-vct-os.git
+
+curl -I https://jamgvct.co/
+curl -I https://jamgvct.co/manifest.webmanifest
+curl -I https://jamgvct.co/service-worker.js
+curl -I https://jamgvct.co/assets/icon-192.png
+curl -I https://jamgvct.co/assets/icon-512.png
+
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=3600
+
+/service-worker.js
+  Content-Type: application/javascript
+  Cache-Control: no-cache
+
+/assets/icon-192.png
+  Content-Type: image/png
+
+/assets/icon-512.png
+  Content-Type: image/png
+
+
+ https://github.com/wwwjexuxgomez13-cpu/jamg-vct-os.git
 
 cd jamg-vct-os
 
