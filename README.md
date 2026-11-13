@@ -209,3 +209,8 @@ sudo systemctl show caddy -p User -p Group
 {"Status":3,"TC":false,"RD":true,"RA":true,"AD":false,"CD":false,"Question":[{"name":"www.jamgvct.co.","type":1}],"Authority":[{"name":"co.","type":6,"TTL":900,"data":"ns0.centralnic.net. hostmaster.centralnic.net. 1759802489 900 1800 6048000 3600"}],"Comment":"Response from 2a04:2b00:13ee::57."}
 
 content://com.google.android.apps.nbu.files.provider/2/33472#servicios
+
+Genera el artefacto README.md siguiendo el PROMPT MAESTRO.
+Inspecciona primero la estructura real del repositorio.
+No inventes componentes ni declares pruebas exitosas sin evidencia.
+Entrega el README completo y un informe de validación.
