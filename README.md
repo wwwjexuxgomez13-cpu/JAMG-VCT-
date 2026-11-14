@@ -1,3 +1,86 @@
+```bash
+$ cd /var/www/jamgvct-landing
+$ bash ./legal-forensic-audit.sh
+
+PASS: politica.html
+PASS: aviso.html
+PASS: terminos.html
+=== FILE METADATA ===
+-rw-r--r-- 1 root www-data  850 Nov 14 07:05 aviso.html
+-rw-r--r-- 1 root www-data 1024 Nov 14 07:05 politica.html
+-rw-r--r-- 1 root www-data  450 Nov 14 07:05 README.md
+-rw-r--r-- 1 root www-data 1200 Nov 14 07:05 terminos.html
+=== FILE SIZES ===
+ 1024 politica.html
+  850 aviso.html
+ 1200 terminos.html
+  450 README.md
+ 3524 total
+=== FILE TYPES ===
+politica.html: HTML document, UTF-8 Unicode text
+aviso.html:    HTML document, UTF-8 Unicode text
+terminos.html: HTML document, UTF-8 Unicode text
+README.md:     ASCII text
+=== CURRENT SHA256 ===
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  politica.html
+a6a4220b388b15d0119e8cf788fb82b8104b2b95b8782a688b1767db16f4c9c7  aviso.html
+6f7881c62b9f365d9e5a1b32f913d8d6dc6219808a9f6063b785287f34c2b9a1  terminos.html
+6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b  README.md
+=== README RAW CONTENT ===
+ 23 20 4a 41 4d 47 20 56 43 54 20 e2 84 a3 20 2d
+ 20 44 45 4d 4f 20 55 49 0a 0a 53 45 54 54 4c 45
+ 4d 45 4e 54 3a 20 4c 4f 43 4b 45 44 0a 50 52 4f
+ 44 55 43 54 49 4f 4e 5f 41 55 54 48 4f 52 49 5a
+=== LEGAL DOCUMENT HEADERS ===
+===== politica.html =====
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad - JAMG VCT</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #07101b; color: #fff; padding: 2rem; }
+        h1 { color: #4ade80; }
+    </style>
+</head>
+<body>
+    <h1>Política de Privacidad</h1>
+    <p>ESTADO: DEMO UI</p>
+    <p>SETTLEMENT: LOCKED</p>
+===== aviso.html =====
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso Legal - JAMG VCT</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #07101b; color: #fff; padding: 2rem; }
+        h1 { color: #4ade80; }
+    </style>
+</head>
+<body>
+    <h1>Aviso Legal</h1>
+    <p>ESTADO: DEMO UI</p>
+    <p>Prototipo visual sin nodo operativo, sin captación ni liquidación financiera.</p>
+===== terminos.html =====
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos de Uso - JAMG VCT</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #07101b; color: #fff; padding: 2rem; }
+        h1 { color: #4ade80; }
+    </style>
+</head>
+<body>
+    <h1>Términos de Uso</h1>
+    <p>ESTADO: DEMO UI</p>
+    <p>SETTLEMENT: LOCKED</p>
+```
 
 cat > /var/www/jamgvct-landing/index.html <<'HTML'
 <!DOCTYPE html>
