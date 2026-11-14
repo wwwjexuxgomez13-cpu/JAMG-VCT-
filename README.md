@@ -15,7 +15,7 @@ Infraestructura y canales
 - Comunicaciones: [DLP-REDACTED: Teléfonos y RCS Ocultos]
 - Dispositivo ROOT: [DLP-REDACTED: Ruta Local Oculta]
 
-Presencia digital
+Presencia digital ℣\jamgvctsymbol{ICCOL046755065003001}℣
 
 - Sitio institucional: https://jamgvct.co
 - Plataforma de pruebas: https://jamg-vct-jesus-mercado.polsia.io/
