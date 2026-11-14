@@ -1,4 +1,57 @@
 
+cat > /var/www/jamgvct-landing/index.html <<'HTML'
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMG VCT TECH</title>
+</head>
+<body>
+    <h1>JAMG VCT TECH</h1>
+    <p>DEMO UI — Prototipo visual</p>
+</body>
+</html>
+HTML
+
+# Validación estructural de archivos
+set -Eeuo pipefail
+
+test -s /var/www/jamgvct-landing/index.html
+test -s /var/www/jamgvct-landing/manifest.webmanifest
+test -s /var/www/jamgvct-landing/service-worker.js
+test -s /var/www/jamgvct-landing/assets/site.css
+
+# Restricciones de gobernanza
+SCOPE=DEMO_UI_ONLY
+SETTLEMENT=LOCKED
+PRODUCTION_AUTHORIZATION=false
+GOVERNANCE=HUMAN_ETHICS_FIRST
+FINANCIAL_EVIDENCE=NONE
+PQC=NONE
+
+echo "JAMG VCT — VALIDATION CHECKS PASSED"
+echo "SCOPE=$SCOPE"
+echo "SETTLEMENT=$SETTLEMENT"
+echo "PRODUCTION_AUTHORIZATION=$PRODUCTION_AUTHORIZATION"
+echo "GOVERNANCE=$GOVERNANCE"
+echo "FINANCIAL_EVIDENCE=$FINANCIAL_EVIDENCE"
+echo "PQC=$PQC"
+# 1. Comprobar sintaxis Bash
+bash -n deploy-landing.sh
+
+# 2. Comprobar delimitadores HEREDOC
+grep -nE '<<-?["'\'']?[A-Za-z_][A-Za-z0-9_]*' deploy-landing.sh
+
+# 3. Ejecutar despliegue
+sudo bash deploy-landing.sh
+
+# 4. Verificar archivos generados
+test -s /var/www/jamgvct-landing/index.html
+test -s /var/www/jamgvct-landing/manifest.webmanifest
+test -s /var/www/jamgvct-landing/service-worker.js
+test -s /var/www/jamgvct-landing/assets/site.css
+
 import unicodedata
 
 # Diccionario estándar de Código Morse internacional
