@@ -1,3 +1,34 @@
+JAMG VCT — Proyecto Unificado 2026
+JAMG VCT — Proyecto Unificado 2026
+
+Red · Telecom · Fibra · Internet · Web · Pagos · Mobile · Web3
+
+Identidad institucional
+
+- Identidad: JAMG VCT
+- Gobernanza: HUMAN ETHICS FIRST
+- Unidad conceptual: IA · ℣ · COP
+
+Infraestructura y canales
+
+- Pasarela de pagos: [DLP-REDACTED: Cuenta de Nequi Oculta]
+- Comunicaciones: [DLP-REDACTED: Teléfonos y RCS Ocultos]
+- Dispositivo ROOT: [DLP-REDACTED: Ruta Local Oculta]
+
+Presencia digital
+
+- Sitio institucional: https://jamgvct.co
+- Plataforma de pruebas: https://jamg-vct-jesus-mercado.polsia.io/
+
+Seguridad y clasificación
+
+- HTTPS/TLS: pendiente de verificación técnica independiente.
+- Plataforma Polsia: identificada como entorno de pruebas.
+- Datos financieros, personales y rutas internas: reservados.
+- ℣: símbolo conceptual de JAMG VCT; no implica reconocimiento monetario ni autorización financiera.
+
+JAMG VCT — HUMAN ETHICS FIRST
+
 ```bash
 $ cd /var/www/jamgvct-landing
 $ bash ./legal-forensic-audit.sh
