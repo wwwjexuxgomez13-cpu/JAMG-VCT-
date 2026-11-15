@@ -168,38 +168,332 @@ test -s /var/www/jamgvct-landing/assets/site.css
 
 import unicodedata
 
-# Diccionario estándar de Código Morse internacional
+# 
+import unicodedata
+
+# =====================================================
+# JAMG VCT — MORSE INTERNATIONAL + UNICODE EXTENSION
+# =====================================================
+
 DICCIONARIO_MORSE = {
-    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-    'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-    'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-    'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
-    '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
-    '8': '---..', '9': '----.', ' ': '/'
+    # ALFABETO INTERNACIONAL
+    'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',
+    'E': '.',     'F': '..-.',  'G': '--.',   'H': '....',
+    'I': '..',    'J': '.---',  'K': '-.-',   'L': '.-..',
+    'M': '--',    'N': '-.',    'O': '---',   'P': '.--.',
+    'Q': '--.-',  'R': '.-.',   'S': '...',   'T': '-',
+    'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',
+    'Y': '-.--',  'Z': '--..',
+
+    # NUMEROS
+    '0': '-----', '1': '.----', '2': '..---',
+    '3': '...--', '4': '....-', '5': '.....',
+    '6': '-....', '7': '--...', '8': '---..',
+    '9': '----.',
+
+    # PUNTUACION MORSE INTERNACIONAL
+    '.': '.-.-.-',
+    ',': '--..--',
+    '?': '..--..',
+    "'": '.----.',
+    '!': '-.-.--',
+    '/': '-..-.',
+    '(': '-.--.',
+    ')': '-.--.-',
+    '&': '.-...',
+    ':': '---...',
+    ';': '-.-.-.',
+    '=': '-...-',
+    '+': '.-.-.',
+    '-': '-....-',
+    '_': '..--.-',
+    '"': '.-..-.',
+    '$': '...-..-',
+    '@': '.--.-.',
+
+    # SEPARADORES
+    ' ': '/',
+    
+    # EXTENSION JAMG VCT — SIMBOLOS NO NORMALIZADOS
+    '#': '......',
+    '§': '...-.-..',
+    '∆': '-....-..',
+    'π': '.--..--.',
+    '√': '..-..-..',
+    '÷': '-..-..',
+    '×': '-..--.',
+    '^': '..--..-.',
+    '°': '---....-',
+    '%': '-----.-.',
+    '~': '-.-..-..',
+
+    # OTROS SIMBOLOS
+    '<': '-.-..',
+    '>': '---.-',
+    '[': '-.--.',
+    ']': '-.--.-',
+    '{': '-.--..',
+    '}': '-.--.-.',
+    '|': '-..-.-',
+    '\\': '-..-.--',
+    '`': '.----..',
+    '*': '-..-.-.',
+    '_': '..--.-',
+
+    # EXTENSION ESPAÑOLA
+    'Ñ': '--.--',
 }
 
-def texto_a_binario_universal(texto):
-    # Codifica cualquier lengua o dialecto mundial usando el estándar UTF-8
-    bytes_utf8 = texto.encode('utf-8')
-    return ' '.join(format(byte, '08b') for byte in bytes_utf8)
+# =====================================================
+# NORMALIZACION
+# =====================================================
+
+def normalizar_texto(texto):
+    resultado = []
+
+    for caracter in texto:
+        if caracter in DICCIONARIO_MORSE:
+            resultado.append(caracter)
+            continue
+
+        descompuesto = unicodedata.normalize('NFKD', caracter)
+
+        # Eliminar marcas diacriticas conservando la letra base
+        base = ''.join(
+            c for c in descompuesto
+            if not unicodedata.combining(c)
+        ).upper()
+
+        if base and all(c in DICCIONARIO_MORSE for c in base):
+            resultado.extend(base)
+        else:
+            resultado.append(caracter)
+
+    return resultado
+
+
+# =====================================================
+# TEXTO A MORSE
+# =====================================================
 
 def texto_a_morse_adaptado(texto):
-    # Normaliza acentos y caracteres especiales para adaptarlos al Morse
-    texto_normalizado = unicodedata.normalize('NFKD', texto).encode('ASCII', 'ignore').decode('utf-8').upper()
-    return ' '.join(DICCIONARIO_MORSE.get(caracter, '?') for caracter in texto_normalizado)
+    salida = []
 
-# Base de datos multilingüe escalable hasta los 7,100+ idiomas y dialectos
-mensajes_planetarios = {
-    "Español": "HOLA PLANETA TIERRA",
-    "Inglés": "HELLO PLANET EARTH",
-    "Chino Mandarín": "你好地球",
-    "Árabe": "مرحبا كوكب الأرض",
-    "Hindi": "नमस्ते पृथ्वी ग्रह",
-    "Swahili": "HABARI DUNIA",
-    "Quechua": "ALLILLANCHU TIKSIMUYU",
-    "Wayuunaiki": "JAMAYA PIA MMAA"
-}
+    for caracter in normalizar_texto(texto):
+        if caracter in DICCIONARIO_MORSE:
+            salida.append(DICCIONARIO_MORSE[caracter])
+        else:
+            # Identificacion Unicode para caracteres no mapeados
+            salida.append(
+                f'[U+{ord(caracter):04X}]'
+            )
+
+    return ' '.join(salida)
+
+
+# =====================================================
+# TEXTO A BINARIO UNIVERSAL UTF-8
+# =====================================================
+
+def texto_a_binario_universal(texto):
+    bytes_utf8 = texto.encode('utf-8')
+
+    return ' '.join(
+        format(byte, '08b')
+        for byte in bytes_utf8
+    )
+
+
+# =====================================================
+# DECODIFICADOR MORSE
+# =====================================================
+
+DICCIONARIO_INVERSO = {}
+
+for caracter, codigo in DICCIONARIO_MORSE.items():
+    if codigo in DICCIONARIO_INVERSO:
+        raise ValueError(
+            f'Codigo Morse duplicado: {codigo}'
+        )
+    DICCIONARIO_INVERSO[codigo] = caracter
+
+
+def morse_a_texto(morse):
+    resultado = []
+
+    for codigo in morse.split():
+        if codigo == '/':
+            resultado.append(' ')
+        elif codigo in DICCIONARIO_INVERSO:
+            resultado.append(DICCIONARIO_INVERSO[codigo])
+        else:
+            resultado.append('?')
+
+    return ''.join(resultado)
+
+
+# =====================================================
+# PRUEBAS
+# =====================================================
+
+simbolos = '@ # § ∆ π √ + - ÷ × ^ ° % ~'
+
+print('SIMBOLOS:', simbolos)
+print('MORSE:', texto_a_morse_adaptado(simbolos))
+
+print('BINARIO:', texto_a_binario_universal(
+    '你好地球'
+))
+
+print('ESPAÑOL:', texto_a_morse_adaptado(
+    'HOLA PLANETA TIERRA'
+))
+
+  
+    
+ commit, tag, push,
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 027
+
+# Ejecutar desde la raíz de JAMG-VCT-UNIFIED.
+ROOT="$(pwd)"
+
+if [[ ! -d "$ROOT/.git" ]]; then
+  echo "ERROR: no se detectó la raíz Git."
+  exit 1
+fi
+
+FILE="$ROOT/ROADMAP.md"
+
+if [[ -e "$FILE" ]]; then
+  echo "ERROR: ROADMAP.md ya existe. No se sobrescribirá."
+  exit 1
+fi
+
+cat > "$FILE" <<'MARKDOWN'
+# JAMG VCT — ROADMAP v1.0
+
+**Proyecto:** JAMG-VCT-UNIFIED  
+**Workspace:** jamg-vct-tech-gateway  
+**Caso de uso inicial:** Logística — Barranquilla, Colombia  
+**Horizonte:** 90 días  
+**Gobernanza:** JAMG — HUMAN ETHICS FIRST
+
+## 1. Objetivo
+
+Desarrollar y validar un piloto de digitalización de procesos
+logísticos mediante documentación, trazabilidad, registro de
+incidencias y automatización de aprobaciones.
+
+La solución deberá mantener evidencia verificable de los eventos,
+sus responsables, sus cambios y sus autorizaciones.
+
+## 2. Fase 1 — Días 1 a 30
+### Descubrimiento y piloto logístico
+
+- Identificar un proceso logístico concreto.
+- Documentar actores, eventos y responsables.
+- Definir estados de operación y reglas de aprobación.
+- Construir una demostración con datos sintéticos o autorizados.
+- Registrar incidencias y cambios documentales.
+- Definir indicadores de tiempo, errores y trazabilidad.
+
+**Gate 1 — Validación del caso de uso**
+
+No avanzar sin alcance aprobado, responsables identificados,
+criterios de aceptación y evidencia de las pruebas.
+
+## 3. Fase 2 — Días 31 a 60
+### Integración controlada y controles técnicos
+
+- Implementar flujos de aprobación supervisados.
+- Incorporar registro de auditoría y verificación de integridad.
+- Evaluar adaptadores de integración con sistemas externos.
+- Preparar pruebas de mensajería ISO 20022.
+- Evaluar mensajes pacs.008 y camt.054 en entorno aislado.
+- Documentar seguridad, permisos, errores y recuperación.
+
+**Gate 2 — Validación técnica**
+
+Las pruebas ISO 20022 serán de laboratorio o sandbox autorizado.
+No implican conexión bancaria, liquidación ni movimiento de fondos.
+
+## 4. Fase 3 — Días 61 a 90
+### Validación comercial e institucional
+
+- Consolidar resultados del piloto.
+- Preparar demostración empresarial.
+- Documentar arquitectura y controles.
+- Elaborar matriz de riesgos y pendientes.
+- Preparar paquete institucional y propuesta B2B.
+- Definir condiciones para una eventual siguiente fase.
+
+**Gate 3 — Revisión ejecutiva**
+
+La presentación institucional no constituye certificación,
+autorización regulatoria ni aprobación de producción.
+
+## 5. Indicadores de aceptación
+
+- Procedimientos del alcance documentados.
+- Aprobaciones asociadas a responsables.
+- Historial de cambios disponible.
+- Incidencias con seguimiento.
+- Evidencias de pruebas reproducibles.
+- Resultados operativos comparables antes y después.
+
+Los objetivos cuantitativos se definirán durante la Fase 1.
+
+## 6. Seguridad y gobernanza
+
+- Separación de DEV, STAGING y PROD.
+- Acceso basado en roles y mínimo privilegio.
+- Protección de datos y gestión de secretos.
+- Registro de eventos y decisiones.
+- Supervisión humana para operaciones críticas.
+- Validación de integridad y origen de evidencias.
+- Proveedores de IA intercambiables.
+
+La IA podrá asistir y proponer, pero no autorizar directamente
+operaciones financieras críticas.
+
+## 7. Restricciones operativas
+
+SETTLEMENT_LOCKED=true
+PRODUCTION_AUTHORIZATION=false
+CUSTODY_ENABLED=false
+TOKEN_ISSUANCE_ENABLED=false
+
+No se habilitarán custodia, emisión de tokens, conectores bancarios
+productivos ni liquidación real como consecuencia de este roadmap.
+
+## 8. Paquete institucional
+
+La referencia financiera de COP 11.900.000, si corresponde al
+alcance comercial previsto, deberá identificarse y justificarse
+con presupuesto, entregables, supuestos y aprobación independiente.
+
+No se presenta como ingreso, saldo, financiación ni contrato
+verificado.
+
+## 9. Criterio de cierre
+
+Cada fase requiere evidencia, revisión y aceptación documentada.
+Un estado PASS declarado no sustituye una prueba reproducible.
+
+**Estado inicial:** ROADMAP_APPROVED_DECLARED  
+**Implementación:** PENDING_VERIFICATION  
+**Gobernanza:** JAMG — HUMAN ETHICS FIRST
+MARKDOWN
+
+echo "ROADMAP.md creado."
+echo "Sin commit, tag, push ni despliegue."
+sha256sum "$FILE"
+git status --short
+
+git diff --no-index /dev/null ROADMAP.md
+git status --short
 
 # Ejecución y unificación de salidas
 for idioma, frase in mensajes_planetarios.items():
