@@ -1439,3 +1439,9 @@ jobs:
             android/app/build/outputs/apk/debug/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 14
+
+
+Actions → JAMG VCT Android APK (DEMO) → Run workflow
+JAMG-VCT-Android-Debug-APK/
+├── app-debug.apk
+└── SHA256SUMS.txt
