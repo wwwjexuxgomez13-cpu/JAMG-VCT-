@@ -1,3 +1,31 @@
+
+gcloud projects list
+gcloud init --console-only
+gcloud version
+which gcloud
+gcloud auth list
+gcloud config list
+mkdir -p /usr/share/keyrings
+
+curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+  | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+  > /etc/apt/sources.list.d/google-cloud-sdk.list
+
+apt update
+apt install -y google-cloud-cli
+apt update
+apt install -y ca-certificates curl gnupg
+uname -m
+dpkg --print-architecture
+pkg update && pkg upgrade -y
+pkg install proot-distro -y
+
+proot-distro install debian
+proot-distro login debian
+
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Crea el proyecto JAMG-VCT-ANDROID-PWA-SOURCE (solo demostración) y su ZIP.
