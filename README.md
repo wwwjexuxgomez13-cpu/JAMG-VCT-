@@ -1,7 +1,107 @@
-JAMG VCT — Proyecto Unificado 2026
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Crea el proyecto JAMG-VCT-ANDROID-PWA-SOURCE (solo demostración) y su ZIP.
+
+Uso:
+    python3 crear_jamg_vct.py              crea la carpeta y el ZIP
+    python3 crear_jamg_vct.py --compilar   además intenta compilar el APK de prueba
+
+Requisitos: Python 3.8+. Para --compilar: Node 18+, JDK 17 y Android SDK.
+"""
+import os
+import shutil
+import subprocess
+import sys
+import zipfile
+
+NOMBRE = "JAMG-VCT-ANDROID-PWA-SOURCE"
+
+FILES = {
+    "package.json": "{\n  \"name\": \"jamg-vct-android-pwa\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"description\": \"JAMG VCT Identity Gateway: PWA y proyecto Android (Capacitor). Solo demostracion.\",\n  \"scripts\": {\n    \"android:add\": \"npx cap add android\",\n    \"android:sync\": \"npx cap sync android\",\n    \"android:apk\": \"cd android && gradlew assembleDebug\"\n  },\n  \"dependencies\": {\n    \"@capacitor/android\": \"^6.0.0\",\n    \"@capacitor/core\": \"^6.0.0\"\n  },\n  \"devDependencies\": {\n    \"@capacitor/cli\": \"^6.0.0\"\n  }\n}\n",
+    "capacitor.config.json": "{\n  \"appId\": \"co.jamgvct.gateway\",\n  \"appName\": \"JAMG VCT\",\n  \"webDir\": \"www\",\n  \"server\": { \"androidScheme\": \"https\" }\n}\n",
+    "BUILD_APK.bat": "@echo off\necho Instalando dependencias...\ncall npm install || goto :err\nif not exist android (\n  echo Creando proyecto Android...\n  call npx cap add android || goto :err\n)\necho Sincronizando www con Android...\ncall npx cap sync android || goto :err\npushd android\necho Compilando APK debug...\ncall gradlew.bat assembleDebug || (popd & goto :err)\npopd\necho.\necho APK generado en: android\\app\\build\\outputs\\apk\\debug\\app-debug.apk\npause\nexit /b 0\n:err\necho.\necho Hubo un error. Revisa los mensajes anteriores.\npause\nexit /b 1\n",
+    "build_apk.sh": "#!/usr/bin/env bash\nset -euo pipefail\nnpm install\n[ -d android ] || npx cap add android\nnpx cap sync android\n(cd android && ./gradlew assembleDebug)\necho \"APK generado en: android/app/build/outputs/apk/debug/app-debug.apk\"\n",
+    "README.md": "# JAMG VCT ℣ — Android + PWA (solo demostración)\n\nContiene la interfaz PWA (`www/`) y la configuración de Capacitor para generar un APK de prueba.\nLa carpeta `android/` NO se incluye: la crea `npx cap add android` y así evitas conflictos.\n\n## Requisitos\n- Node.js 18 o superior\n- JDK 17\n- Android Studio con Android SDK (define `ANDROID_HOME` si Gradle no lo encuentra)\n\n## Compilar el APK de prueba\nWindows: doble clic en `BUILD_APK.bat`.\nLinux o macOS: `./build_apk.sh`\n\nManual:\n```\nnpm install\nnpx cap add android\nnpx cap sync android\ncd android\n./gradlew assembleDebug      (en Windows: gradlew.bat assembleDebug)\n```\nResultado: `android/app/build/outputs/apk/debug/app-debug.apk`\n\n## Probar la PWA sin Android\nSirve `www/` por HTTPS (o `http://localhost`) con cualquier servidor estático, por ejemplo `npx serve www`.\nPara el simulador SHA-256 se necesita un contexto seguro.\n\n## Notas\n- El APK debug sirve solo para pruebas. Para publicar en Google Play hace falta un paquete firmado (AAB) y la ficha de la tienda.\n- Todo es una demostración: no hay pagos, saldos ni conexiones reales.\n\n## Compilar en la nube sin computador (GitHub Actions)\n1. Crea un repositorio en github.com y sube el contenido de esta carpeta (o solo `.github/workflows/build-apk.yml`, que ya trae todo el proyecto dentro).\n2. Al confirmar el cambio, la pestaña **Actions** compila sola el APK de prueba.\n3. Descarga **app-debug-apk** al final de la ejecución. Es un ZIP con `app-debug.apk`.\n",
+    ".github/workflows/build-apk.yml": "# Compila un APK de prueba en la nube (GitHub Actions). Solo demostración.\n# Uso: crea un repositorio, agrega este archivo en .github/workflows/build-apk.yml\n# y confirma el cambio. Luego abre Actions > Build APK debug > app-debug-apk.\nname: Build APK debug\non:\n  push:\n  workflow_dispatch:\njobs:\n  apk:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: 17\n      - name: Crear proyecto Capacitor (PWA incluida)\n        run: |\n          mkdir -p www\n          cat > package.json <<'JAMG_EOF'\n          {\n            \"name\": \"jamg-vct-android-pwa\",\n            \"version\": \"1.0.0\",\n            \"private\": true,\n            \"description\": \"JAMG VCT Identity Gateway: PWA y proyecto Android (Capacitor). Solo demostracion.\",\n            \"scripts\": {\n              \"android:add\": \"npx cap add android\",\n              \"android:sync\": \"npx cap sync android\",\n              \"android:apk\": \"cd android && gradlew assembleDebug\"\n            },\n            \"dependencies\": {\n              \"@capacitor/android\": \"^6.0.0\",\n              \"@capacitor/core\": \"^6.0.0\"\n            },\n            \"devDependencies\": {\n              \"@capacitor/cli\": \"^6.0.0\"\n            }\n          }\n          JAMG_EOF\n          cat > capacitor.config.json <<'JAMG_EOF'\n          {\n            \"appId\": \"co.jamgvct.gateway\",\n            \"appName\": \"JAMG VCT\",\n            \"webDir\": \"www\",\n            \"server\": { \"androidScheme\": \"https\" }\n          }\n          JAMG_EOF\n          cat > www/index.html <<'JAMG_EOF'\n          <!doctype html>\n          <html lang=\"es-CO\">\n          <head>\n          <meta charset=\"utf-8\">\n          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n          <meta name=\"theme-color\" content=\"#07101b\">\n          <title>JAMG VCT ℣ · Identity Gateway</title>\n          <link rel=\"manifest\" href=\"./manifest.json\">\n          <link rel=\"icon\" href=\"./icon.svg\" type=\"image/svg+xml\">\n          <style>\n          *{box-sizing:border-box}\n          html,body{margin:0;background:#07101b;color:#f3f7fc;font:15px/1.5 system-ui,sans-serif}\n          body{padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}\n          #cv{position:fixed;inset:0;width:100%;height:100%;z-index:0}\n          main{position:relative;z-index:1;max-width:640px;margin:0 auto;display:grid;gap:14px}\n          header,section{background:rgba(11,22,38,.88);border:1px solid #20385c;border-radius:16px;padding:18px}\n          header{text-align:center}\n          .chip{display:inline-block;font-size:.75rem;color:#28d0c0;border:1px solid #28d0c0;border-radius:99px;padding:3px 12px}\n          h1{margin:8px 0 2px;font-size:1.9rem}h1 b{color:#28d0c0}\n          h2{margin:0 0 8px;font-size:1.05rem;color:#28d0c0}\n          p{margin:0;color:#b8c8e0}\n          .am{color:#ffb74d}\n          .hash{margin:10px 0;padding:10px;border:1px solid #20385c;border-radius:10px;background:#07101b;font:11px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;color:#b8c8e0;min-height:3em}\n          ol{margin:8px 0 0;padding-left:20px;color:#b8c8e0;font-size:.85rem}\n          button{font:inherit;font-weight:700;background:#28d0c0;color:#06111d;border:0;border-radius:10px;padding:11px 18px;cursor:pointer}\n          button:focus-visible{outline:2px solid #fff;outline-offset:2px}\n          </style>\n          </head>\n          <body>\n          <canvas id=\"cv\" aria-hidden=\"true\"></canvas>\n          <main>\n          <header>\n          <span class=\"chip\">Demostración · sin producción</span>\n          <h1>JAMG VCT <b>℣</b></h1>\n          <p>Identity Gateway · Barranquilla · COP</p>\n          </header>\n          <section>\n          <h2>Simulador de estados con SHA-256</h2>\n          <p>Estado: <strong id=\"st\">Creada</strong> · Referencia: <span class=\"am\">Demo COP</span></p>\n          <div id=\"hb\" class=\"hash\" aria-live=\"polite\"></div>\n          <button id=\"sb\" type=\"button\">Simular transición</button>\n          <ol id=\"hi\"></ol>\n          </section>\n          </main>\n          <script>\n          if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(function(){}); }\n          var S = ['Creada','Validada','Enrutada','Entregada','Confirmada','Auditada'], i = 0, n = 0, prev = '0', H = [];\n          var $ = function(id){ return document.getElementById(id); };\n          async function sha(s){\n            var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));\n            return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');\n          }\n          async function step(){\n            var st = S[i];\n            $('st').textContent = st;\n            try {\n              var h = await sha(prev + '|' + st + '|' + n++);\n              prev = h;\n              H.unshift([st, h]); if (H.length > 6) H.pop();\n              $('hb').textContent = h;\n              $('hi').innerHTML = H.map(function(x){ return '<li>' + x[0] + ' · ' + x[1].slice(0,16) + '…</li>'; }).join('');\n            } catch (e) {\n              $('hb').textContent = 'SHA-256 no está disponible en este contexto (requiere HTTPS).';\n            }\n          }\n          $('sb').onclick = function(){ i = (i + 1) % S.length; step(); };\n          step();\n          var c = $('cv'), ctx = c.getContext('2d'), a = 0, calm = matchMedia('(prefers-reduced-motion: reduce)').matches;\n          function size(){ c.width = innerWidth; c.height = innerHeight; draw(); }\n          function draw(){\n            ctx.clearRect(0, 0, c.width, c.height);\n            ctx.strokeStyle = 'rgba(40,208,192,.25)'; ctx.lineWidth = 2;\n            ctx.beginPath(); ctx.arc(c.width/2, c.height*.55, Math.min(c.width, c.height)*.28, a, a + Math.PI*1.6); ctx.stroke();\n          }\n          function loop(){ a += .01; draw(); requestAnimationFrame(loop); }\n          addEventListener('resize', size); size(); if (!calm) loop();\n          </script>\n          </body>\n          </html>\n          JAMG_EOF\n          cat > www/manifest.json <<'JAMG_EOF'\n          {\n            \"name\": \"JAMG VCT Identity Gateway\",\n            \"short_name\": \"JAMG VCT\",\n            \"start_url\": \"./index.html\",\n            \"scope\": \"./\",\n            \"display\": \"standalone\",\n            \"orientation\": \"portrait\",\n            \"background_color\": \"#07101b\",\n            \"theme_color\": \"#07101b\",\n            \"description\": \"Identity Gateway JAMG VCT. Demostración sin producción.\",\n            \"icons\": [\n              { \"src\": \"icon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n            ]\n          }\n          JAMG_EOF\n          cat > www/sw.js <<'JAMG_EOF'\n          const CACHE = 'jamg-vct-v1';\n          const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];\n          self.addEventListener('install', e => {\n            e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));\n            self.skipWaiting();\n          });\n          self.addEventListener('activate', e => {\n            e.waitUntil(\n              caches.keys()\n                .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))\n                .then(() => self.clients.claim())\n            );\n          });\n          self.addEventListener('fetch', e => {\n            if (e.request.method !== 'GET') return;\n            e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));\n          });\n          JAMG_EOF\n          cat > www/icon.svg <<'JAMG_EOF'\n          <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#07101b\"/><g fill=\"none\" stroke=\"#28d0c0\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M24 10v12M17 16l7-7 7 7M12 24h24M12 28h24M24 28v12M17 33l7 7 7-7\"/></g></svg>\n          JAMG_EOF\n      - name: Instalar dependencias y crear proyecto Android\n        run: |\n          npm install\n          npx cap add android\n          npx cap sync android\n      - name: Compilar APK debug\n        working-directory: android\n        run: |\n          chmod +x gradlew\n          ./gradlew assembleDebug\n      - uses: actions/upload-artifact@v4\n        with:\n          name: app-debug-apk\n          path: android/app/build/outputs/apk/debug/app-debug.apk\n",
+    "www/index.html": "<!doctype html>\n<html lang=\"es-CO\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<meta name=\"theme-color\" content=\"#07101b\">\n<title>JAMG VCT ℣ · Identity Gateway</title>\n<link rel=\"manifest\" href=\"./manifest.json\">\n<link rel=\"icon\" href=\"./icon.svg\" type=\"image/svg+xml\">\n<style>\n*{box-sizing:border-box}\nhtml,body{margin:0;background:#07101b;color:#f3f7fc;font:15px/1.5 system-ui,sans-serif}\nbody{padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}\n#cv{position:fixed;inset:0;width:100%;height:100%;z-index:0}\nmain{position:relative;z-index:1;max-width:640px;margin:0 auto;display:grid;gap:14px}\nheader,section{background:rgba(11,22,38,.88);border:1px solid #20385c;border-radius:16px;padding:18px}\nheader{text-align:center}\n.chip{display:inline-block;font-size:.75rem;color:#28d0c0;border:1px solid #28d0c0;border-radius:99px;padding:3px 12px}\nh1{margin:8px 0 2px;font-size:1.9rem}h1 b{color:#28d0c0}\nh2{margin:0 0 8px;font-size:1.05rem;color:#28d0c0}\np{margin:0;color:#b8c8e0}\n.am{color:#ffb74d}\n.hash{margin:10px 0;padding:10px;border:1px solid #20385c;border-radius:10px;background:#07101b;font:11px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;color:#b8c8e0;min-height:3em}\nol{margin:8px 0 0;padding-left:20px;color:#b8c8e0;font-size:.85rem}\nbutton{font:inherit;font-weight:700;background:#28d0c0;color:#06111d;border:0;border-radius:10px;padding:11px 18px;cursor:pointer}\nbutton:focus-visible{outline:2px solid #fff;outline-offset:2px}\n</style>\n</head>\n<body>\n<canvas id=\"cv\" aria-hidden=\"true\"></canvas>\n<main>\n<header>\n<span class=\"chip\">Demostración · sin producción</span>\n<h1>JAMG VCT <b>℣</b></h1>\n<p>Identity Gateway · Barranquilla · COP</p>\n</header>\n<section>\n<h2>Simulador de estados con SHA-256</h2>\n<p>Estado: <strong id=\"st\">Creada</strong> · Referencia: <span class=\"am\">Demo COP</span></p>\n<div id=\"hb\" class=\"hash\" aria-live=\"polite\"></div>\n<button id=\"sb\" type=\"button\">Simular transición</button>\n<ol id=\"hi\"></ol>\n</section>\n</main>\n<script>\nif ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(function(){}); }\nvar S = ['Creada','Validada','Enrutada','Entregada','Confirmada','Auditada'], i = 0, n = 0, prev = '0', H = [];\nvar $ = function(id){ return document.getElementById(id); };\nasync function sha(s){\n  var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));\n  return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');\n}\nasync function step(){\n  var st = S[i];\n  $('st').textContent = st;\n  try {\n    var h = await sha(prev + '|' + st + '|' + n++);\n    prev = h;\n    H.unshift([st, h]); if (H.length > 6) H.pop();\n    $('hb').textContent = h;\n    $('hi').innerHTML = H.map(function(x){ return '<li>' + x[0] + ' · ' + x[1].slice(0,16) + '…</li>'; }).join('');\n  } catch (e) {\n    $('hb').textContent = 'SHA-256 no está disponible en este contexto (requiere HTTPS).';\n  }\n}\n$('sb').onclick = function(){ i = (i + 1) % S.length; step(); };\nstep();\nvar c = $('cv'), ctx = c.getContext('2d'), a = 0, calm = matchMedia('(prefers-reduced-motion: reduce)').matches;\nfunction size(){ c.width = innerWidth; c.height = innerHeight; draw(); }\nfunction draw(){\n  ctx.clearRect(0, 0, c.width, c.height);\n  ctx.strokeStyle = 'rgba(40,208,192,.25)'; ctx.lineWidth = 2;\n  ctx.beginPath(); ctx.arc(c.width/2, c.height*.55, Math.min(c.width, c.height)*.28, a, a + Math.PI*1.6); ctx.stroke();\n}\nfunction loop(){ a += .01; draw(); requestAnimationFrame(loop); }\naddEventListener('resize', size); size(); if (!calm) loop();\n</script>\n</body>\n</html>\n",
+    "www/manifest.json": "{\n  \"name\": \"JAMG VCT Identity Gateway\",\n  \"short_name\": \"JAMG VCT\",\n  \"start_url\": \"./index.html\",\n  \"scope\": \"./\",\n  \"display\": \"standalone\",\n  \"orientation\": \"portrait\",\n  \"background_color\": \"#07101b\",\n  \"theme_color\": \"#07101b\",\n  \"description\": \"Identity Gateway JAMG VCT. Demostración sin producción.\",\n  \"icons\": [\n    { \"src\": \"icon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n",
+    "www/sw.js": "const CACHE = 'jamg-vct-v1';\nconst ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];\nself.addEventListener('install', e => {\n  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));\n  self.skipWaiting();\n});\nself.addEventListener('activate', e => {\n  e.waitUntil(\n    caches.keys()\n      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))\n      .then(() => self.clients.claim())\n  );\n});\nself.addEventListener('fetch', e => {\n  if (e.request.method !== 'GET') return;\n  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));\n});\n",
+    "www/icon.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#07101b\"/><g fill=\"none\" stroke=\"#28d0c0\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M24 10v12M17 16l7-7 7 7M12 24h24M12 28h24M24 28v12M17 33l7 7 7-7\"/></g></svg>\n",
+}
+
+
+def crear(destino):
+    base = os.path.join(destino, NOMBRE)
+    for ruta, texto in FILES.items():
+        p = os.path.join(base, *ruta.split("/"))
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        fin = "\r\n" if ruta.endswith(".bat") else "\n"
+        with open(p, "w", encoding="utf-8", newline=fin) as f:
+            f.write(texto)
+    os.chmod(os.path.join(base, "build_apk.sh"), 0o755)
+    zpath = base + ".zip"
+    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
+        for ruta in FILES:
+            z.write(os.path.join(base, *ruta.split("/")), NOMBRE + "/" + ruta)
+    print("Carpeta:", base)
+    print("ZIP:    ", zpath, "(%d archivos)" % len(FILES))
+    return base
+
+
+def correr(cmd, cwd):
+    print("\n$", cmd)
+    r = subprocess.run(cmd, cwd=cwd, shell=True)
+    if r.returncode != 0:
+        sys.exit("\nFalló: %s\nRevisa el mensaje anterior." % cmd)
+
+
+def compilar(base):
+    faltan = [t for t in ("node", "npm", "java") if not shutil.which(t)]
+    if faltan:
+        sys.exit("Faltan herramientas: %s. Instálalas o usa build-apk.yml en GitHub." % ", ".join(faltan))
+    if not (os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")):
+        print("Aviso: ANDROID_HOME no está definido; Gradle podría no encontrar el SDK.")
+    correr("npm install", base)
+    if not os.path.isdir(os.path.join(base, "android")):
+        correr("npx cap add android", base)
+    correr("npx cap sync android", base)
+    gradle = "gradlew.bat" if os.name == "nt" else "./gradlew"
+    correr(gradle + " assembleDebug", os.path.join(base, "android"))
+    apk = os.path.join(base, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk")
+    print("\nAPK generado:" if os.path.isfile(apk) else "\nNo se encontró el APK en:", apk)
+
+
+if __name__ == "__main__":
+    carpeta = crear(os.getcwd())
+    if "--compilar" in sys.argv[1:]:
+        compilar(carpeta)
+    else:
+        print("\nSiguiente paso: python3 crear_jamg_vct.py --compilar  (o sube .github/workflows/build-apk.yml a GitHub)")
+
+python3 crear_jamg_vct.py
+
 JAMG VCT — Proyecto Unificado 2026
 
-Red · Telecom · Fibra · Internet · Web · Pagos · Mobile · Web3
+Red · Telecom · Fibra · Internet · Web · Pagos · Mobile · Web3 · html5
+
+# 1. Crear el proyecto
+python3 crear_jamg_vct.py
+
+# 2. Entrar en la carpeta
+cd JAMG-VCT-ANDROID-PWA-SOURCE
+
+# 3. Instalar dependencias
+npm install
+
+# 4. Crear Android
+npx cap add android
+
+# 5. Sincronizar
+npx cap sync android
+
+# 6. Compilar APK
+cd android
+./gradlew assembleDebug
 
 Identidad institucional
 
