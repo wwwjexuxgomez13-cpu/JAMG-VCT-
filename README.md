@@ -4,6 +4,516 @@ www.jamgvct.co {
     redir https://jamgvct.co{uri} permanent
 }
 
+<!DOCTYPE html>
+<html lang="es" data-protocol="HTTPS-TLS1.3" data-status="200-OK" data-domain="jamgvct.co">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#060a12" />
+  <meta name="description" content="JAMG VCT S.A.S. · MS-O.N.E. 2.0.1 — Tech & Gateway (JAMG-FINTECH-OS) · Nodo 1045668717-MS-ONE Barranquilla UTC-5 · jamgvct.co · HTTP 200 OK" />
+  <title>JAMG VCT S.A.S. · MS-O.N.E. 2.0.1 — Tech &amp; Gateway (jamgvct.co)</title>
+  <style>
+    :root {
+      --bg-void: #060a12;
+      --bg-panel: #0d1424;
+      --bg-card: #111b2e;
+      --bg-card-alt: #16233b;
+      --border-dim: #1e2d4a;
+      --border-bright: #00e5ff;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --cyan: #00e5ff;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --violet: #8b5cf6;
+      --rose: #f43f5e;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: 44px;
+      padding-bottom: 3rem;
+    }
+
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-void); }
+    ::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+    /* =====================================================================
+       1. BARRA SUPERIOR ULTRA-COMPACTA (44px EXACTO, UNA SOLA FILA)
+       ===================================================================== */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 44px;
+      background: rgba(6, 10, 18, 0.96);
+      border-bottom: 1px solid var(--border-dim);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.75rem;
+      z-index: 90;
+      gap: 0.5rem;
+    }
+    .topbar-left, .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+    .top-brand {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .top-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      margin-right: 0.32rem;
+    }
+    .top-clock {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--cyan);
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 0.2rem 0.52rem;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) { .top-clock { display: none; } }
+
+    .export-wrap { position: relative; }
+    .export-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 245px;
+      background: var(--bg-panel);
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      padding: 0.55rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.82);
+      display: none;
+      flex-direction: column;
+      gap: 0.32rem;
+      z-index: 110;
+    }
+    .export-popover.open { display: flex; }
+    .export-popover-title {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.12rem 0.3rem 0.3rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    /* =====================================================================
+       2. MENÚ LATERAL RETRÁCTIL (DRAWER CERRADO POR DEFECTO)
+       ===================================================================== */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 44px 0 0 0;
+      background: rgba(3, 6, 12, 0.7);
+      backdrop-filter: blur(3px);
+      z-index: 84;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .nav-drawer {
+      position: fixed;
+      top: 44px; left: 0; bottom: 0;
+      width: 282px;
+      max-width: 86vw;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-dim);
+      padding: 0.75rem;
+      z-index: 88;
+      transform: translateX(-102%);
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow-y: auto;
+      box-shadow: 12px 0 34px rgba(0, 0, 0, 0.7);
+    }
+    .nav-drawer.open { transform: translateX(0); }
+
+    body.drawer-pinned .nav-drawer { transform: translateX(0); box-shadow: none; }
+    body.drawer-pinned .drawer-backdrop { display: none; }
+    @media (min-width: 1120px) {
+      body.drawer-pinned .main-container { margin-left: 282px; }
+    }
+
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .nav-cat {
+      font-size: 0.63rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      font-weight: 800;
+      padding: 0.42rem 0.4rem 0.16rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.46rem 0.58rem;
+      border-radius: 9px;
+      margin-bottom: 0.16rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.14s ease;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: var(--bg-card);
+      color: #f8fafc;
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+    .nav-tag {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      padding: 0.08rem 0.38rem;
+      border-radius: 6px;
+      background: rgba(0, 229, 255, 0.12);
+      color: var(--cyan);
+    }
+
+    /* =====================================================================
+       3. HUD FLOTANTE MINIMIZADO POR DEFECTO (PÍLDORA ESQUINA INFERIOR DER.)
+       ===================================================================== */
+    .hud-float-wrap {
+      position: fixed;
+      right: 0.85rem;
+      bottom: 0.85rem;
+      z-index: 92;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.45rem;
+    }
+    .hud-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      background: rgba(13, 20, 36, 0.95);
+      border: 1px solid var(--cyan);
+      color: #f8fafc;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.42rem 0.8rem;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .hud-pill-btn:hover { transform: translateY(-1px); border-color: var(--emerald); }
+    .hud-panel {
+      width: 320px;
+      max-width: calc(100vw - 1.7rem);
+      background: rgba(13, 20, 36, 0.98);
+      border: 1px solid var(--cyan);
+      border-radius: 14px;
+      padding: 0.82rem;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(12px);
+      display: none;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .hud-panel.open { display: flex; }
+
+    /* =====================================================================
+       CONTENEDOR PRINCIPAL & TARJETAS DE MÓDULOS
+       ===================================================================== */
+    .main-container {
+      max-width: 1460px;
+      margin: 0 auto;
+      padding: 1rem 1.15rem;
+      transition: margin-left 0.24s ease;
+    }
+
+    .card-section {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dim);
+      border-radius: 16px;
+      padding: 1.15rem;
+      margin-bottom: 1.15rem;
+      box-shadow: 0 10px 28px rgba(2, 6, 23, 0.48);
+      scroll-margin-top: 56px;
+    }
+    .sec-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.95rem;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .sec-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .sec-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 0.16rem;
+    }
+
+    /* Badges & Buttons */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.56rem; border-radius: 999px;
+      font-family: var(--font-mono); font-size: 0.67rem; font-weight: 700;
+      border: 1px solid var(--border-dim); background: var(--bg-card);
+    }
+    .badge-ok { border-color: rgba(16,185,129,0.5); color: var(--emerald); background: rgba(16,185,129,0.1); }
+    .badge-cyan { border-color: rgba(0,229,255,0.5); color: var(--cyan); background: rgba(0,229,255,0.1); }
+    .badge-amber { border-color: rgba(245,158,11,0.5); color: var(--amber); background: rgba(245,158,11,0.1); }
+    .badge-violet { border-color: rgba(139,92,246,0.5); color: var(--violet); background: rgba(139,92,246,0.12); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.36rem;
+      padding: 0.42rem 0.74rem; border-radius: 8px;
+      font-size: 0.74rem; font-weight: 700; cursor: pointer;
+      border: 1px solid var(--border-dim); background: var(--bg-card); color: var(--text-main);
+      transition: all 0.14s ease; text-decoration: none;
+    }
+    .btn:hover { border-color: var(--cyan); background: var(--bg-card-alt); }
+    .btn-primary { background: linear-gradient(135deg, #00b8d4, #00e5ff); border-color: #00e5ff; color: #04101c; }
+    .btn-primary:hover { background: linear-gradient(135deg, #00e5ff, #38bdf8); color: #04101c; }
+    .btn-emerald { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.5); color: var(--emerald); }
+    .btn-emerald:hover { background: rgba(16,185,129,0.25); }
+    .btn-amber { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.5); color: var(--amber); }
+    .btn-amber:hover { background: rgba(245,158,11,0.25); }
+    .btn-violet { background: rgba(139,92,246,0.16); border-color: rgba(139,92,246,0.5); color: #c4b5fd; }
+    .btn-violet:hover { background: rgba(139,92,246,0.26); }
+    .btn-sm { padding: 0.26rem 0.56rem; font-size: 0.69rem; }
+
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      background: #070c17;
+      border: 1px solid var(--border-dim);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 0.46rem 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 2px rgba(0,229,255,0.2);
+    }
+
+    /* Grids */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.85rem; }
+    @media (max-width: 1120px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .subpanel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      padding: 0.85rem;
+    }
+    .kpi-lbl { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
+    .kpi-num { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 800; color: #f8fafc; margin-top: 0.18rem; }
+    .kpi-sub { font-family: var(--font-mono); font-size: 0.68rem; color: var(--emerald); margin-top: 0.15rem; }
+
+    .code-box {
+      background: #060a12;
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 0.72rem;
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 4-Layer Bre-B Cards */
+    .layer-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      padding: 0.82rem;
+      transition: all 0.2s ease;
+    }
+    .layer-box.active-pulse {
+      border-color: var(--emerald);
+      box-shadow: 0 0 18px rgba(16,185,129,0.24);
+      transform: translateY(-2px);
+    }
+    .layer-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      font-weight: 800;
+      padding: 0.14rem 0.45rem;
+      border-radius: 6px;
+      margin-bottom: 0.35rem;
+      background: rgba(0,229,255,0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(0,229,255,0.35);
+    }
+    .layer-box.active-pulse .layer-tag {
+      background: rgba(16,185,129,0.18);
+      color: var(--emerald);
+      border-color: rgba(16,185,129,0.45);
+    }
+
+    .prog-track { width: 100%; height: 8px; background: #060a12; border-radius: 99px; overflow: hidden; border: 1px solid var(--border-dim); }
+    .prog-bar { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--emerald)); transition: width 0.35s ease; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+    th, td { padding: 0.46rem 0.58rem; border-bottom: 1px solid var(--border-dim); text-align: left; }
+    th { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); background: rgba(6,10,18,0.7); }
+
+    .m-chip {
+      display: inline-flex; align-items: center; gap: 0.28rem;
+      padding: 0.22rem 0.52rem; border-radius: 7px; margin: 0.14rem;
+      font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700;
+      border: 1px solid var(--border-dim); background: #070d1a;
+    }
+    .m-ok { border-color: rgba(16,185,129,0.5); color: var(--emerald); background: rgba(16,185,129,0.1); }
+    .m-warn { border-color: rgba(245,158,11,0.55); color: var(--amber); background: rgba(245,158,11,0.12); }
+    .m-no { color: var(--text-dim); }
+
+    @keyframes pulseSvg {
+      0%, 100% { transform: scale(0.95); opacity: 0.85; }
+      50% { transform: scale(1.07); opacity: 1; }
+    }
+    .svg-anim { animation: pulseSvg 2.5s infinite ease-in-out; transform-origin: center; }
+
+    #toast-stack {
+      position: fixed;
+      left: 0.85rem;
+      bottom: 0.85rem;
+      z-index: 95;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-width: 345px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      background: #111b2e;
+      border: 1px solid var(--cyan);
+      color: #f8fafc;
+      padding: 0.55rem 0.82rem;
+      border-radius: 10px;
+      font-size: 0.74rem;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.65);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================== -->
+  <!-- 1. BARRA SUPERIOR ULTRA-COMPACTA (44px EXACTO · UNA SOLA FILA)        -->
+  <!-- ===================================================================== -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-sm" type="button" id="btn-drawer-toggle" aria-expanded="false" aria-controls="nav-drawer">☰ Módulos</button>
+      <div class="top-brand"><span class="top-dot"></span>MS-O.N.E. 2.0.1 · jamgvct.co · HTTP 200 OK</div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="top-clock" id="live-clock-baq">2026-11-21 04:41:00 UTC-5</div>
+      <div class="export-wrap">
+        <button class="btn btn-primary btn-sm" type="button" id="btn-export-toggle" aria-expanded="false">⬇ Exportar</button>
+        <div class="export-popover" id="export-popover" role="menu">
+          <div class="export-popover-title">Exportación Directa (jamgvct.co)</div>
+          <button class="btn btn-primary btn-sm" type="button" data-export="https.html" style="justify-content:flex-start;">⬇ https.html (Single-File)</button>
+          <button class="btn btn-sm" type="button" data-export="index.html" style="justify-content:flex-start;">⬇ index.html (Web Root)</button>
+          <button class="btn btn-emerald btn-sm" type="button" data-export="inbox-index.json" style="justify-content:flex-start;">⬇ inbox-index.json</button>
+          <button class="btn btn-sm" type="button" data-export="manifest.json" style="justify-content:flex-start;">⬇ manifest.json (PWA)</button>
+          <button class="btn btn-sm" type="button" data-export="sw.js" style="justify-content:flex-start;">⬇ sw.js (Offline Cache)</button>
+          <button class="btn btn-sm" type="button" data-export="twa-manifest.json" style="justify-content:flex-start;">⬇ twa-manifest.json (APK)</button>
+          <button class="btn btn-sm" type="button" data-export="assetlinks.json" style="justify-content:flex-start;">⬇ assetlinks.json (TWA)</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MENÚ LATERAL RETRÁCTIL (DRAWER CERRADO POR DEFECTO)                 -->
+  <!-- ===================================================================== -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Menú de navegación de módulos">
+    <div class="drawer-head">
+      <span style="font-family:var(--font-mono); font-size:0.73rem; font-weight:800; color:var(--cyan);">MÓDULOS MS-O.N.E. 2.0.1</span>
+      <div style="display:flex; gap:0.28rem;">
+        <button class="btn btn-sm" type="button" id="btn-drawer-pin" title="Fijar/Desfijar en pantallas anchas">📌 Fijar</button>
+        <button class="btn btn-sm" type="button" id="btn-drawer-close" title="Cerrar menú (Esc)">✕</button>
+      </div>
+    </div>
+
+    <input type="text" id="drawer-search" placeholder="Buscar módulo (Roadmap, Bre-B, RUT, JPEG...)" />
+
+    <div id="drawer-links-list" style="overflow-y:auto; flex:1;">
+      <div class="nav-cat">Comando &amp; Hoja de Ruta</div>
+      <a class="nav-item active" href="#sec-hero" data-nav-label="Hero Ejecutivo jamgvct.co 04 Dic 2026 VCT"><span>🏛️ Resumen Ejecutivo</span><span class="nav-tag">200 OK</span></a>
+      <a class="nav-item" href="#sec-roadmap" data-nav-label="Modulo 1 Hoja de Ruta Gestion Recursos Actividades P1 P5"><span>📋 01. Hoja de Ruta P1–P5</span><span class="nav-tag" id="nav-roadmap-pct">56.67%</span></a>
+
+      <div class="nav-cat">Banca, Tributario &amp; Bóveda</div>
+      <a class="nav-item" href="#sec-breb" data-nav-label="Modulo 2 Bre-B 4 Capas API REST ISO 20022 Multi IA 6/6"><span>🏦 02. Bre-B 4 Capas + 6/6</span><span class="nav-tag">ISO20022</span></a>
+      <a class="nav-item" href="#sec-einvoice" data-nav-label="Modulo 3 Perfil 
+
 <!-- ... existing code ... -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';" />
   <meta name="referrer" content="no-referrer" />
